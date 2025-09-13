@@ -1,0 +1,6 @@
+[project]
+name = "benchmark-fft"
+version = "0.1.0"
+description = "Cross-language FFT benchmark runner and plotting"
+requires-python = ">=3.10"
+dependencies = ["matplotlib>=3.8"]
