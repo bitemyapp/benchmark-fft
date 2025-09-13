@@ -24,6 +24,7 @@ Options:
 """
 
 import argparse
+import os
 import re
 import statistics as stats
 import subprocess
@@ -60,17 +61,32 @@ class BenchResult:
             "average": stats.mean(self.times_ms),
         }
 
-def run_cmd(cmd: List[str], cwd: Optional[Path] = None, verbose: bool = False) -> subprocess.CompletedProcess:
+def run_cmd(
+    cmd: List[str],
+    cwd: Optional[Path] = None,
+    verbose: bool = False,
+    env: Optional[dict] = None,
+) -> subprocess.CompletedProcess:
     workdir = str(cwd) if cwd else None
     if verbose:
         prefix = f"[CMD in {workdir}] " if workdir else "[CMD] "
         print(prefix + " ".join(map(str, cmd)), file=sys.stderr)
+        if env is not None and "RUSTFLAGS" in env:
+            print(f"[ENV] RUSTFLAGS={env['RUSTFLAGS']}", file=sys.stderr)
     return subprocess.run(
-        cmd, cwd=workdir, capture_output=True, text=True, check=False
+        cmd, cwd=workdir, capture_output=True, text=True, check=False, env=env
     )
 
 def ensure_built(program: Program, verbose: bool) -> None:
-    proc = run_cmd(program.build_cmd, cwd=program.workdir, verbose=verbose)
+    env_vars = None
+    if program.name == "rust":
+        env_vars = os.environ.copy()
+        existing = env_vars.get("RUSTFLAGS", "")
+        add = "-C target-cpu=native"
+        if add not in existing:
+            env_vars["RUSTFLAGS"] = (existing + " " + add).strip()
+
+    proc = run_cmd(program.build_cmd, cwd=program.workdir, verbose=verbose, env=env_vars)
     if proc.returncode != 0:
         print(f"[ERROR] Build failed for {program.name}.", file=sys.stderr)
         print("Command:", " ".join(program.build_cmd), file=sys.stderr)
@@ -202,7 +218,12 @@ def main():
         exe_path=Path("bin") / "main",
     )
 
-    programs = [rust, mbt, swift, go]  # build & run order
+    # Build & run order; on Linux, skip Swift with a warning
+    if sys.platform.startswith("linux"):
+        print("[WARN] Linux detected: skipping Swift benchmarks.", file=sys.stderr)
+        programs = [rust, mbt, go]
+    else:
+        programs = [rust, mbt, swift, go]
 
     # Build
     if not args.no_build:

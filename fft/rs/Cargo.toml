@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+rayon = "1"
 
 [lib]
 name = "fft"
@@ -11,4 +12,16 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "main"
-path = "src/main.rs" 
+path = "src/main.rs"
+
+[profile.release]
+debug = 1
+
+[dev-dependencies]
+rustfft = "6"
+num-complex = "0.4"
+criterion = { version = "0.7.0", features = ["html_reports"] }
+
+[[bench]]
+name = "fft_bench"
+harness = false

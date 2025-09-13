@@ -1,0 +1,7 @@
+__pycache__/
+*.png
+*.txt
+*.mbt.verified
+*.verified
+*.verified.txt
+fft/go/bin/main
