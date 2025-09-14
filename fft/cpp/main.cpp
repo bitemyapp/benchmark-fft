@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "complex.hpp"
