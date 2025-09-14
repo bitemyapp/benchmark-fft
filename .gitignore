@@ -5,3 +5,5 @@ __pycache__/
 *.verified
 *.verified.txt
 fft/go/bin/main
+fft/c/build/
+fft/cpp/build/

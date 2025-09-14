@@ -2,6 +2,7 @@
 
 mkdir -p build
 gcc -O3 -march=native -funroll-loops -flto -DNDEBUG \
-	-Wall -Wextra -lm -o build/fft_bench \
+	-Wall -Wextra -o build/fft_bench \
 	fft.c \
-	main.c
+	main.c \
+	-lm
