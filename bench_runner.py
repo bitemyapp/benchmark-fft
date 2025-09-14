@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-bench_runner.py  (Rust + MoonBit + Swift + Go; verify opt-in; verbose logging)
+bench_runner.py  (Rust + MoonBit + Swift + Go + C + C++; verify opt-in; verbose logging)
 
 Features
-- Builds Rust, MoonBit, Swift, Go (or skip with --no-build)
+- Builds Rust, MoonBit, Swift, Go, C, C++ (or skip with --no-build)
 - Optional verification per input: MoonBit writes golden file, Rust reads & compares
-  (Swift/Go are not verified)
+  (Swift/Go/C/C++ are not verified)
 - Benchmarks inputs (default 18 20 22), N runs each (default 10)
 - Parses "execution time: XXX ms" and prints min/max/median/average
 - --verbose prints every command executed (build + runs + verification)
@@ -111,7 +111,7 @@ def print_table(results: List[BenchResult]) -> None:
     print("=" * 90)
     print("Benchmark Summary (execution time in ms)")
     print("=" * 90)
-    header = f"{'Program':20} {'Input':>7} {'Runs':>6} {'Fastest':>12} {'Slowest':>12} {'Median':>12} {'Average':>12}"
+    header = f"{ 'Program':20} {'Input':>7} {'Runs':>6} {'Fastest':>12} {'Slowest':>12} {'Median':>12} {'Average':>12}"
     print(header)
     print("-" * len(header))
 
@@ -137,7 +137,7 @@ def verify_pair(mbt: Program, rust: Program, input_value: int, out_dir: Path, ve
     If per_run is False: generate one golden file with MBT and check once with Rust.
     If per_run is True:  return a callable that, given a run index, will perform
                          MBT->file then Rust->verify for each run.
-    Swift/Go are not verified.
+    Swift/Go/C/C++ are not verified.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     golden = out_dir / f"mbt_{input_value}.txt"
@@ -201,8 +201,20 @@ def main():
         build_cmd=["go", "build", "-o", "bin/main", "."],
         exe_path=Path("bin") / "main",
     )
+    c_impl = Program(
+        name="c",
+        workdir=repo_root / "fft" / "c",
+        build_cmd=["./build.sh"],
+        exe_path=Path("build") / "fft_bench",
+    )
+    cpp_impl = Program(
+        name="cpp",
+        workdir=repo_root / "fft" / "cpp",
+        build_cmd=["./build.sh"],
+        exe_path=Path("build") / "fft_bench",
+    )
 
-    programs = [rust, mbt, swift, go]  # build & run order
+    programs = [rust, mbt, swift, go, c_impl, cpp_impl]  # build & run order
 
     # Build
     if not args.no_build:
