@@ -15,7 +15,7 @@ std::vector<Complex> generate_inputs(int len) {
   std::vector<Complex> res;
   res.reserve(len);
   for (int i = 0; i < len; i++) {
-    double theta = (double)i / len * PI;
+    double theta = (double)i / len * M_PI;
     double re = 1.0 * cos(10.0 * theta) + 0.5 * cos(25.0 * theta);
     double im = 1.0 * sin(10.0 * theta) + 0.5 * sin(25.0 * theta);
     res.emplace_back(round_n(re), round_n(im));

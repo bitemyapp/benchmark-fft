@@ -5,8 +5,6 @@
 #include <cmath>
 #include <vector>
 
-const double PI = 3.14159265358979323846;
-
 void fft(std::vector<Complex> &arr) {
   int n = arr.size();
   if (n == 1)
@@ -23,7 +21,7 @@ void fft(std::vector<Complex> &arr) {
   fft(a0);
   fft(a1);
 
-  double ang = -2.0 * PI / n;
+  double ang = -2.0 * M_PI / n;
   Complex w(1.0, 0.0);
   Complex wn(cos(ang), sin(ang));
 
